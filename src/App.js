@@ -8,12 +8,14 @@ import { useState } from 'react';
 // css 
 import './App.css';
 import { async } from '@firebase/util';
-import { doc, setDoc, collection, addDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, addDoc, getDoc, getDocs } from 'firebase/firestore';
 
 function App() {
 
   const [titulo, setTitulo] = useState('');
   const [autor, setAutor] = useState('');
+
+  const [posts, setPosts] = useState([]);
 
   async function handleAdd() {
     // await setDoc(doc(db, "posts", "12345"), {
@@ -32,27 +34,49 @@ function App() {
       titulo,
       autor,
     })
-    .then(() => {
-      console.log("Dados registrados com sucesso!");
-      setAutor('');
-      setTitulo('');
-    })
-    .catch((error) => {
-      console.log("Erro ocorrido " + error);
-    });
+      .then(() => {
+        console.log("Dados registrados com sucesso!");
+        setAutor('');
+        setTitulo('');
+      })
+      .catch((error) => {
+        console.log("Erro ocorrido " + error);
+      });
 
   }
 
-  async function buscarPost(){
-    const postRef = doc(db,"posts","jnPAMQScrggUmuw5UXEp");
+  async function buscarPost() {
 
-    await getDoc(postRef)
-    .then((snapshot) => {
-      setAutor(snapshot.data().autor);
-      setTitulo(snapshot.data().titulo);
-    }).catch((error) => {
-      console.error("Erro ao buscar" + error);
-    });
+    // buscar post 
+    // const postRef = doc(db,"posts","jnPAMQScrggUmuw5UXEp");
+
+    // await getDoc(postRef)
+    // .then((snapshot) => {
+    //   setAutor(snapshot.data().autor);
+    //   setTitulo(snapshot.data().titulo);
+    // }).catch((error) => {
+    //   console.error("Erro ao buscar" + error);
+    // });
+
+    const postRef = collection(db, "posts");
+    await getDocs(postRef)
+      .then((snapshot) => {
+        let lista = [];
+
+        // percorre todos os documentos
+        snapshot.forEach((doc) => {
+          lista.push({
+            id: doc.id,
+            titulo: doc.data().titulo,
+            autor: doc.data().autor
+          });
+        })
+
+        setPosts(lista);
+      }).catch((error) => {
+        console.error("Erro ao buscar" + error)
+      });
+
   }
 
   return (
@@ -77,6 +101,19 @@ function App() {
 
         <button onClick={handleAdd}> Cadastrar </button>
         <button onClick={buscarPost}> Buscar post </button>
+
+        <ul>
+          {
+            posts.map((post) => {
+              return (
+                <li key={post.id}>
+                  <span> Título: {post.titulo} </span> <br />
+                  <span> Autor: {post.autor} </span> <br /> <br />
+                </li>
+              )
+            })
+          }
+        </ul>
       </div>
     </div>
   );
