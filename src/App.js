@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 // css 
 import './App.css';
-import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
 
 function App() {
 
@@ -91,11 +91,22 @@ function App() {
         setAutor('');
       })
       .catch((error) => {
-        if(docRef == ''){
-          console.log("" + error.message);
-        }
         console.log("Erro ao tentar atualizar post => " + error);
       });
+  }
+
+  
+  async function excluirPost(id){
+    const docRef = doc(db, "posts", id );
+
+    await deleteDoc(docRef,"posts",id)
+      .then(() => {
+        console.log(" Post excluido com sucesso");
+      })
+      .catch((error) => {
+        console.log("Erro ao tentar excluiro post => " + error);
+      });
+
   }
 
   return (
@@ -140,7 +151,8 @@ function App() {
                 <li key={post.id}>
                   <strong> ID: {post.id} </strong> <br />
                   <span> Título: {post.titulo} </span> <br />
-                  <span> Autor: {post.autor} </span> <br /> <br />
+                  <span> Autor: {post.autor} </span> <br /> 
+                  <button onClick={() => excluirPost(post.id)}> Excluir </button> <br/> <br/>
                 </li>
               )
             })
