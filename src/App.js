@@ -2,19 +2,54 @@
 import { db } from './firebaseConnection'
 
 // hooks
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // css 
 import './App.css';
-import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  onSnapshot
+} from 'firebase/firestore';
 
 function App() {
 
   const [titulo, setTitulo] = useState('');
   const [autor, setAutor] = useState('');
 
-  const [posts, setPosts] = useState([]);
   const [idpost, setidPost] = useState('');
+
+  const [posts, setPosts] = useState([]);
+  
+
+  // atualiza dados do banco em tempo real 
+  useEffect(() => {
+    async function loadPost() {
+      const unsub = onSnapshot(collection(db, "posts"), (snapshot) => {
+        let listaPost = [];
+
+        // percorre todos os documentos
+        snapshot.forEach((doc) => {
+          listaPost.push({
+            id: doc.id,
+            titulo: doc.data().titulo,
+            autor: doc.data().autor
+          })
+        })
+
+        setPosts(listaPost);
+
+      });
+    }
+
+    loadPost();
+  }, []);
 
   async function handleAdd() {
     // await setDoc(doc(db, "posts", "12345"), {
@@ -95,11 +130,11 @@ function App() {
       });
   }
 
-  
-  async function excluirPost(id){
-    const docRef = doc(db, "posts", id );
 
-    await deleteDoc(docRef,"posts",id)
+  async function excluirPost(id) {
+    const docRef = doc(db, "posts", id);
+
+    await deleteDoc(docRef, "posts", id)
       .then(() => {
         console.log(" Post excluido com sucesso");
       })
@@ -113,7 +148,7 @@ function App() {
     <div>
       <h1> React + Firebase :) </h1>
       <div className='container'>
-        <label> ID do Post </label>
+        <label> ID do Post </label>   <br />
         <input
           placeholder='Digite o ID do post'
           value={idpost}
@@ -121,38 +156,37 @@ function App() {
         />
         <br />
 
-        <label> Título: </label>
+        <label> Título: </label>  <br />
         <textarea
           type="text"
           placeholder="Digite o título"
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
         />
-        <br />
 
-        <label> Auttor: </label>
+        <br />
+        <label> Autor: </label>
         <input
           type="text"
           placeholder="Autor do post"
           value={autor}
           onChange={(e) => setAutor(e.target.value)}
-        />
+        /> <br />
 
-        <button onClick={handleAdd}> Cadastrar </button>
-        <button onClick={buscarPost}> Buscar post </button>
-        <br />
+        <button onClick={handleAdd}> Cadastrar </button> <br />
+        <button onClick={buscarPost}> Buscar post </button> <br />
 
-        <button onClick={editarPost}> Atualizar post </button>
+        <button onClick={editarPost}> Atualizar post </button> <br />
 
         <ul>
           {
             posts.map((post) => {
               return (
                 <li key={post.id}>
-                  <strong> ID: {post.id} </strong> <br />
-                  <span> Título: {post.titulo} </span> <br />
-                  <span> Autor: {post.autor} </span> <br /> 
-                  <button onClick={() => excluirPost(post.id)}> Excluir </button> <br/> <br/>
+                  <strong> ID: {post.id} </strong> <br /> <br />
+                  <span> Título: {post.titulo} </span> <br /> <br />
+                  <span> Autor: {post.autor} </span> <br /> <br />
+                  <button onClick={() => excluirPost(post.id)}> Excluir </button> <br /> <br />
                 </li>
               )
             })
