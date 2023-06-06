@@ -1,5 +1,7 @@
 // Database
-import { db } from './firebaseConnection'
+import { db, auth } from './firebaseConnection'
+// import {  } from './firebase/auth'
+
 
 // hooks
 import { useState, useEffect } from 'react';
@@ -18,6 +20,8 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+
 function App() {
 
   const [titulo, setTitulo] = useState('');
@@ -26,7 +30,9 @@ function App() {
   const [idpost, setidPost] = useState('');
 
   const [posts, setPosts] = useState([]);
-  
+
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
 
   // atualiza dados do banco em tempo real 
   useEffect(() => {
@@ -141,13 +147,56 @@ function App() {
       .catch((error) => {
         console.log("Erro ao tentar excluiro post => " + error);
       });
+  }
 
+  async function novoUsuario(){
+    await createUserWithEmailAndPassword(auth, email, senha)
+      .then(() => {
+        console.log("Cadastrado com sucesso");
+
+        // Limpar os campos após operação
+        setEmail('');
+        setSenha('');
+      })
+      .catch((error) => {
+        if(error.code === 'auth/weak-password'){
+          console.log("Senha muito fraca")
+        } else if( error.code === 'auth/email-already-in-use'){
+          console.log(" O email já existe")
+        }
+        console.log("Erro ao tentar cadastrar" + error);
+      });
   }
 
   return (
     <div>
       <h1> React + Firebase :) </h1>
+
       <div className='container'>
+        <h2> Usuários </h2>
+        <label> Email </label> <br />
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Digite um email"
+        /> <br />
+
+        <label> Senha </label> <br />
+        <input
+        type='password'
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          placeholder="Informe a sua senha"
+        /> <br />
+
+        <button onClick={novoUsuario}> Cadastrar </button>
+      </div>
+
+      <br /> <br />
+      <hr />
+
+      <div className='container'>
+        <label> Posts </label>   <br />
         <label> ID do Post </label>   <br />
         <input
           placeholder='Digite o ID do post'
@@ -177,6 +226,9 @@ function App() {
         <button onClick={buscarPost}> Buscar post </button> <br />
 
         <button onClick={editarPost}> Atualizar post </button> <br />
+
+        <br /> <br />
+        <hr />
 
         <ul>
           {

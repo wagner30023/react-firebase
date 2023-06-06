@@ -1,0 +1,62 @@
+{
+    "s_uf": [
+        {
+            "sg_uf": "AC",
+            "no_uf": "Acre"
+        },
+        {
+            "sg_uf": "DF",
+            "no_uf": "Brasília"
+        },
+        {
+            "sg_uf": "RO",
+            "no_uf": "Rondônia"
+        },
+        {
+            "sg_uf": "SP",
+            "no_uf": "São Paulo"
+        }
+    ],
+    "s_nome_curso": [
+        {
+            "no_curso": "SIOPE DF"
+        },
+        {
+            "no_curso": "Programa Dinheiro Direto na Escola DF"
+        },
+        {
+            "no_curso": "Programa Dinheiro Direto na Escola GO"
+        },
+        {
+            "no_curso": "Controle Social para Conselheiros AC"
+        }
+    ],
+    "nu_categoria": [
+        {
+            "nu_seq_categoria": 321
+        },
+        {
+            "nu_seq_categoria": 441
+        },
+        {
+            "nu_seq_categoria": 461
+        },
+        {
+            "nu_seq_categoria": 481
+        }
+    ],
+    "nome_categoria": [
+        {
+            "no_categoria": "Formação - DF"
+        },
+        {
+            "no_categoria": "Nacional"
+        },
+        {
+            "no_categoria": "Capacitação / Sem tutoria / Jornada"
+        },
+        {
+            "no_categoria": "Capacitação / Sem tutoria / Externo"
+        }
+    ]
+}
