@@ -20,7 +20,7 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 function App() {
 
@@ -34,8 +34,8 @@ function App() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
-  const [user,setUser] = useState(false);
-  const [userDetail,setUserDetail] = useState({});
+  const [user, setUser] = useState(false);
+  const [userDetail, setUserDetail] = useState({});
 
   // atualiza dados do banco em tempo real 
   useEffect(() => {
@@ -58,6 +58,29 @@ function App() {
     }
 
     loadPost();
+  }, []);
+
+
+  useEffect(() => {
+    async function checkLogin() {
+      onAuthStateChanged(auth, (user) => {
+        if(user){
+          // se tem usuário logado ele entra aqui
+          console.log(user);
+          setUser(true);
+          setUserDetail({
+            uid: user.uid,
+            email: user.email
+          });
+        } else {
+          // não possui nenhum user logado
+          setUser(false);
+          setUserDetail({});
+        }
+      })
+    }
+
+    checkLogin();
   }, []);
 
   async function handleAdd() {
@@ -152,7 +175,8 @@ function App() {
       });
   }
 
-  async function novoUsuario(){
+  // addUser
+  async function novoUsuario() {
     await createUserWithEmailAndPassword(auth, email, senha)
       .then(() => {
         console.log("Cadastrado com sucesso");
@@ -162,17 +186,18 @@ function App() {
         setSenha('');
       })
       .catch((error) => {
-        if(error.code === 'auth/weak-password'){
+        if (error.code === 'auth/weak-password') {
           console.log("Senha muito fraca")
-        } else if( error.code === 'auth/email-already-in-use'){
+        } else if (error.code === 'auth/email-already-in-use') {
           console.log(" O email já existe")
         }
         console.log("Erro ao tentar cadastrar" + error);
       });
   }
 
-  async function logaUsuario(){
-    await signInWithEmailAndPassword(auth,email,senha)
+  // Authetcation
+  async function logaUsuario() {
+    await signInWithEmailAndPassword(auth, email, senha)
       .then((value) => {
         console.log("Logado com sucesso");
         console.log(value.user);
@@ -187,15 +212,16 @@ function App() {
         setEmail('');
         setSenha('');
       })
-      .catch((e) => { 
+      .catch((e) => {
         console.log("Error ao fazer login: " + e.message);
       });
   }
 
-  async function fazerLogout(){
+  // Logout
+  async function fazerLogout() {
     await signOut(auth)
-        setUser(false)
-        setUserDetail({});
+    setUser(false)
+    setUserDetail({});
   }
 
   return (
@@ -204,9 +230,9 @@ function App() {
       {
         user && (
           <div>
-            <strong> Seja bem vindo(a) (Você está logado!) </strong> <br/>
+            <strong> Seja bem vindo(a) (Você está logado!) </strong> <br />
             <span> ID: {userDetail.uid} - Email: {userDetail.email}</span>
-            <br/> <br/>
+            <br /> <br />
             <button onClick={fazerLogout}> Sair da conta </button>
           </div>
         )
@@ -222,7 +248,7 @@ function App() {
 
         <label> Senha </label> <br />
         <input
-        type='password'
+          type='password'
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
           placeholder="Informe a sua senha"
